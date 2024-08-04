@@ -41,7 +41,7 @@ func generatePerson() map[string]interface{} {
 }
 
 func main() {
-	runtime.GOMAXPROCS(1) //runtime.NumCPU())
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	numCPU := runtime.NumCPU()
 
 	// Imprimir el número de CPUs
