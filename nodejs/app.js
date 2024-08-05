@@ -1,5 +1,11 @@
 const express = require('express');
 const app = express();
+const cluster = require('cluster');
+const os = require('os');
+
+
+const PORT = process.env.PORT || 3001;
+
 
 function generateEmail() {
     const characters = 'abcdefghijklmnopqrstuvwxyz';
@@ -28,7 +34,29 @@ app.get('/people', (req, res) => {
     res.json(people.slice(0, 20));
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+const numWorkers = 4;//process.argv[2] || os.cpus().length;
+
+if (cluster.isMaster) {
+    console.log(`Master ${process.pid} is running`);
+
+    // Fork workers.
+    for (let i = 0; i < numWorkers; i++) {
+        cluster.fork();
+    }
+
+    cluster.on('exit', (worker, code, signal) => {
+        console.log(`Worker ${worker.process.pid} died`);
+        // Optionally, you can restart the worker here if necessary
+        // cluster.fork();
+    });
+} else {
+    // Workers can share any TCP connection.
+    // In this case, it is an HTTP server.
+ 
+    app.listen(PORT, () => {
+        console.log(`Worker ${process.pid} is running on port ${PORT}`);
+    });
+
+    // Your existing app code here
+    // app.get('/', (req, res) => res.send('Hello World!'));
+}

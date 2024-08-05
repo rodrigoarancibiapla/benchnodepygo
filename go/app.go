@@ -80,7 +80,7 @@ func main() {
 	r.GET("/people", func(c *gin.Context) {
 		rand.Seed(time.Now().UnixNano())
 
-		numPeople := 45000
+		numPeople := 5000
 		numWorkers := runtime.NumCPU()
 		fmt.Println(numWorkers, " workers")
 		people := generatePeople(numPeople, numWorkers)
